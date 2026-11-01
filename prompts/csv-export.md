@@ -1,4 +1,4 @@
-# Prompt log: CSV export (my feature 11)
+# Prompt log for CSV export (my feature 11)
 
 ## Prompt
 

@@ -1,4 +1,4 @@
-# Prompt log: sign up and login (feature 1)
+# Prompt log for sign up and login (feature 1)
 
 ## Prompt
 

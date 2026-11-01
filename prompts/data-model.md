@@ -1,4 +1,4 @@
-# Prompt log: data model and routes (feature 2)
+# Prompt log for data model and routes (feature 2)
 
 ## Prompt
 

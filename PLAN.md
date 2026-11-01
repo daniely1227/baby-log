@@ -2,9 +2,9 @@
 
 ## 1. Pitch
 
-I'm building **Run Log** because I jog regularly but I don't track it, so I can't tell whether I'm running more or getting faster. I want one place where I log each run's distance and time, see my pace, and see my weekly totals.
+I'm building **Run Log** because I run 3 to 5 times a week and I'm training to run 10 km in under 50 minutes, which means holding a pace of 5:00 per km. I'm still a beginner, so I want one simple place where I log each run's distance and time, see my pace, and check week by week whether I'm getting closer to that goal.
 
-I'll use it after every run, about 3 to 4 times a week, and look at the dashboard once a week.
+I'll use it after every run, 3 to 5 times a week, and look at the dashboard once a week.
 
 ## 2. Features (user stories, in build order)
 
@@ -94,19 +94,19 @@ users >──< runs   (many-to-many through stars)
 
 ## 5. Technologies
 
-- **Coding agent: Claude Code.** It can write the code, run the tests and open the GitHub issues, branches and pull requests for each feature.
-- **Language and framework: Python with Flask.** Flask is small and readable, so I can follow how a request turns into a page.
-- **Database: PostgreSQL on Render (SQLite in memory for tests).** A hosted database keeps my runs when the app restarts, and SQLAlchemy lets the same code run on both.
-- **Sign up and login: Flask-Login with hashed passwords (Werkzeug).** The standard, simple way to keep each user logged in without storing plain passwords.
-- **Hosting: Render free web service, deployed from GitHub.** It redeploys automatically every time a pull request is merged into main, so the live URL stays current.
-- **Libraries: Chart.js for charts, pytest for tests, gunicorn as the web server.** Each is the common default for its job.
+- **Claude Code as the coding agent.** It can write the code, run the tests and open the GitHub issues, branches and pull requests for each feature.
+- **Python with Flask for the app.** Flask is small and readable, so I can follow how a request turns into a page.
+- **PostgreSQL on Render for the database (SQLite in memory for tests).** A hosted database keeps my runs when the app restarts, and SQLAlchemy lets the same code run on both.
+- **Flask-Login with hashed passwords (Werkzeug) for sign up and login.** The standard, simple way to keep each user logged in without storing plain passwords.
+- **Render free web service for hosting, deployed from GitHub.** It redeploys automatically every time a pull request is merged into main, so the live URL stays current.
+- **Chart.js for charts, pytest for tests and gunicorn as the web server.** Each is the common default for its job.
 
 ## 6. Design
 
-Clean monochrome: white background, black text, gray borders, one black accent for buttons, no decoration. Big numbers for distance and pace, and a phone-first layout because I log right after a run. Inspiration is the Nike Run Club summary screen (one big number per card) and the Apple Health app.
+Clean monochrome, with a white background, black text, gray borders, one black accent for buttons and no decoration. Big numbers for distance and pace, and a phone-first layout because I log right after a run. Inspiration is the Nike Run Club summary screen (one big number per card) and the Apple Health app.
 
 ## 7. Risks and cuts
 
-- **Least sure I can build:** the weekly streak, because "weeks in a row" depends on where a week starts and on weeks with no runs, which is easy to get off by one. I'll define weeks as Monday to Sunday.
-- **First to cut if I run out of time:** CSV export, because I don't need it week to week.
-- **Hosting risk:** Render's free database expires after a limited time, which is fine through the Nov 4 demo but would need an upgrade for long-term use.
+- **Least sure I can build.** The weekly streak, because "weeks in a row" depends on where a week starts and on weeks with no runs, which is easy to get off by one. I'll define weeks as Monday to Sunday.
+- **First to cut if I run out of time.** CSV export, because I don't need it week to week.
+- **Hosting risk.** Render's free database expires after a limited time, which is fine through the Nov 4 demo but would need an upgrade for long-term use.
