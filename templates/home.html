@@ -1,7 +1,37 @@
 {% extends "base.html" %}
+{% from "_macros.html" import run_rows with context %}
 {% block content %}
+<div class="row-between">
+  <h1>Run Log</h1>
+  <a class="btn" href="{{ url_for('run_new') }}">+ Log a run</a>
+</div>
+
 <section class="card">
-  <h1>Welcome</h1>
-  <p class="muted">Logged in as {{ current_user.email }}.</p>
+  <h2>Same as last time</h2>
+  <p class="muted" style="margin-top:0">One tap logs a run right now with the same distance and time as your last run on that route. You can edit it after.</p>
+  {% if quick %}
+  <div class="quick-grid">
+    {% for q in quick %}
+      {% if q.last %}
+      <form method="post" action="{{ url_for('route_repeat', route_id=q.route.id) }}">
+        <button class="quick"><span>{{ q.route.name }}<br><small>{{ '%g'|format(q.last.distance_km) }} km · {{ q.last.duration_text }}</small></span></button>
+      </form>
+      {% else %}
+      <a class="quick" href="{{ url_for('run_new', route=q.route.id) }}"><span>{{ q.route.name }}<br><small>first run, open form</small></span></a>
+      {% endif %}
+    {% endfor %}
+  </div>
+  {% else %}
+  <p>Add the routes you run most on the <a href="{{ url_for('routes_page') }}">Routes</a> page to get one-tap buttons here.</p>
+  {% endif %}
+</section>
+
+<section>
+  <div class="row-between"><h2 style="margin:0">Recent runs</h2><a href="{{ url_for('runs_list') }}">See all</a></div>
+  {% if recent %}
+    {{ run_rows(recent, request.path) }}
+  {% else %}
+    <div class="card empty"><p>No runs yet.</p><a class="btn" href="{{ url_for('run_new') }}">Log your first run</a></div>
+  {% endif %}
 </section>
 {% endblock %}
