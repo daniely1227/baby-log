@@ -16,7 +16,7 @@ from flask_login import (
 from sqlalchemy.exc import IntegrityError, ProgrammingError
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from models import Route, Run, Star, User, db, format_duration, format_pace, parse_duration
+from models import Route, Run, Star, User, db, format_date, format_duration, format_pace, parse_duration
 from stats import dashboard_stats, days_since_last_run, weekly_streak
 
 APP_TZ = ZoneInfo(os.environ.get("APP_TZ", "America/Los_Angeles"))
@@ -196,6 +196,7 @@ def create_app(config=None):
 
     db.init_app(app)
     app.jinja_env.filters["pace"] = format_pace
+    app.jinja_env.filters["date"] = format_date
 
     login_manager = LoginManager(app)
     login_manager.login_view = "login"

@@ -102,6 +102,17 @@ def parse_duration(text):
     return h * 3600 + m * 60 + s
 
 
+def format_date(value, pattern):
+    """strftime that also works on Windows, which doesn't know %-d, %-m or %-I
+    (day, month and 12-hour clock hour without a leading zero)."""
+    if value is None:
+        return ""
+    pattern = (pattern.replace("%-d", str(value.day))
+                      .replace("%-m", str(value.month))
+                      .replace("%-I", str(value.hour % 12 or 12)))
+    return value.strftime(pattern)
+
+
 def format_pace(sec_per_km):
     """361.5 -> '6:02 /km'."""
     if sec_per_km is None:
