@@ -16,7 +16,7 @@
     <div class="stat-label">Longest run</div>
     {% if stats.longest %}
     <div class="stat-value" id="stat-longest">{{ '%.1f'|format(stats.longest.distance_km) }} km</div>
-    <div class="muted small">{{ stats.longest.run_at.strftime('%b %-d') }}</div>
+    <div class="muted small">{{ stats.longest.run_at|date('%b %-d') }}</div>
     {% else %}<div class="stat-value" id="stat-longest">—</div>{% endif %}
   </div>
 </div>
@@ -30,7 +30,7 @@
     <div class="stat-label">Best pace</div>
     {% if stats.best_pace_run %}
     <div class="stat-value" id="stat-best-pace">{{ stats.best_pace_run.pace_text }}</div>
-    <div class="muted small">{{ '%.1f'|format(stats.best_pace_run.distance_km) }} km on {{ stats.best_pace_run.run_at.strftime('%b %-d') }}</div>
+    <div class="muted small">{{ '%.1f'|format(stats.best_pace_run.distance_km) }} km on {{ stats.best_pace_run.run_at|date('%b %-d') }}</div>
     {% else %}<div class="stat-value" id="stat-best-pace">—</div>{% endif %}
   </div>
 </div>
@@ -61,7 +61,7 @@
       scales: { y: { beginAtZero: true, title: { display: true, text: 'km' } }, x: { grid: { display: false } } }
     }
   });
-  const fmt = v => `${Math.floor(v)}:${String(Math.round((v % 1) * 60)).padStart(2, '0')}`;
+  const fmt = v => { const s = Math.round(v * 60); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
   new Chart(document.getElementById('paceChart'), {
     type: 'line',
     data: {

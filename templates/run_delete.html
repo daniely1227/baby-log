@@ -4,7 +4,7 @@
 <section class="card narrow">
   <h1>Are you sure?</h1>
   <p>This will permanently delete your <strong>{{ '%.2f'|format(run.distance_km) }} km</strong> run from
-     {{ run.run_at.strftime('%b %-d, %-I:%M %p') }}.</p>
+     {{ run.run_at|date('%b %-d, %-I:%M %p') }}.</p>
   <form method="post">
     <div class="actions">
       <button class="btn danger" type="submit">Yes, delete it</button>

@@ -31,7 +31,7 @@ def weekly_km(runs, now, weeks=8):
     for i in range(weeks - 1, -1, -1):
         start = this_week - timedelta(weeks=i)
         end = start + timedelta(days=7)
-        labels.append(start.strftime("%-m/%-d"))
+        labels.append(f"{start.month}/{start.day}")
         totals.append(round(sum(r.distance_km for r in runs if start <= r.run_at.date() < end), 1))
     return labels, totals
 
@@ -55,7 +55,7 @@ def best_pace_run(runs):
 def pace_trend(runs, last=10):
     """(labels, minutes per km) for the last `last` runs, oldest first."""
     recent = sorted((r for r in runs if r.pace_sec_per_km), key=lambda r: r.run_at)[-last:]
-    labels = [r.run_at.strftime("%-m/%-d") for r in recent]
+    labels = [f"{r.run_at.month}/{r.run_at.day}" for r in recent]
     minutes = [round(r.pace_sec_per_km / 60, 2) for r in recent]
     return labels, minutes
 
