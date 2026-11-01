@@ -136,3 +136,7 @@ a.log-row:hover { background: var(--soft); }
 .quick small { font-weight: 400; color: var(--muted); }
 .quick:active { background: var(--text); color: var(--bg); }
 .highlight { background: var(--soft); }
+
+/* Long words (a pasted URL, a 100-letter route name) wrap instead of pushing the page sideways. */
+.quick-grid > * { min-width: 0; }
+.quick span, .log-main, .details dd, .flash, h1 { overflow-wrap: anywhere; }
