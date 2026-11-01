@@ -135,3 +135,4 @@ a.log-row:hover { background: var(--soft); }
 }
 .quick small { font-weight: 400; color: var(--muted); }
 .quick:active { background: var(--text); color: var(--bg); }
+.highlight { background: var(--soft); }
