@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Routes · Run Log{% endblock %}
+{% block content %}
+<h1>My routes</h1>
+<p class="muted">Places you usually run. Each run can be linked to one of these.</p>
+
+{% if routes %}
+<ul class="log-list">
+  {% for r in routes %}
+  <li class="log-item">
+    <div class="log-row">
+      <span class="log-main"><strong>{{ r.name }}</strong>
+        <span class="muted">{% if r.distance_km %} · {{ '%.1f'|format(r.distance_km) }} km{% endif %}{% if r.surface %} · {{ r.surface }}{% endif %}</span>
+      </span>
+      <span class="muted log-time">{{ r.runs|length }} run{{ '' if r.runs|length == 1 else 's' }}</span>
+    </div>
+    <form method="post" action="{{ url_for('route_delete', route_id=r.id) }}" class="star-form">
+      <button class="star" title="Remove route" aria-label="Remove route">×</button>
+    </form>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<div class="card empty"><p>No routes yet. Add the loop you run most.</p></div>
+{% endif %}
+
+<section class="card" style="margin-top:16px">
+  <h2>Add a route</h2>
+  <form method="post" novalidate>
+    <label>Name
+      <input type="text" name="name" placeholder="Berkeley Marina loop" value="{{ request.form.name }}">
+    </label>
+    <label>Usual distance (km, optional)
+      <input type="number" name="distance_km" step="0.1" min="0" inputmode="decimal" value="{{ request.form.distance_km }}">
+    </label>
+    <label>Surface (optional)
+      <select name="surface">
+        <option value="">Choose</option>
+        {% for s in ['road', 'trail', 'track', 'treadmill'] %}<option value="{{ s }}">{{ s|capitalize }}</option>{% endfor %}
+      </select>
+    </label>
+    <button class="btn" type="submit">Save route</button>
+  </form>
+</section>
+{% endblock %}

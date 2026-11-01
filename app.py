@@ -1,6 +1,8 @@
 import os
+from datetime import date, datetime, timedelta
+from zoneinfo import ZoneInfo
 
-from flask import Flask, flash, redirect, render_template, request, url_for
+from flask import Flask, abort, flash, redirect, render_template, request, url_for
 from flask_login import (
     LoginManager,
     current_user,
@@ -10,7 +12,26 @@ from flask_login import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from models import User, db
+from models import Route, Run, User, db
+
+APP_TZ = ZoneInfo(os.environ.get("APP_TZ", "America/Los_Angeles"))
+
+
+def now_local():
+    """Current wall-clock time in Pacific time, without tz info."""
+    return datetime.now(APP_TZ).replace(tzinfo=None, second=0, microsecond=0)
+
+
+def parse_km(value):
+    value = (value or "").strip()
+    return float(value) if value else None
+
+
+def get_own_route(route_id):
+    route = Route.query.filter_by(id=route_id, user_id=current_user.id).first()
+    if route is None:
+        abort(404)
+    return route
 
 
 def database_url():
@@ -89,6 +110,44 @@ def create_app(config=None):
     @login_required
     def home():
         return render_template("home.html")
+
+    # ---------- Routes (places I run) ----------
+
+    @app.route("/routes", methods=["GET", "POST"])
+    @login_required
+    def routes_page():
+        if request.method == "POST":
+            name = request.form.get("name", "").strip()
+            surface = request.form.get("surface") or None
+            try:
+                km = parse_km(request.form.get("distance_km"))
+            except ValueError:
+                km = None
+                flash("Distance must be a number of km, like 5.2.")
+            else:
+                if not name:
+                    flash("Please give the route a name.")
+                elif km is not None and km <= 0:
+                    flash("Distance must be more than 0 km.")
+                else:
+                    db.session.add(Route(user_id=current_user.id, name=name, distance_km=km,
+                                         surface=surface if surface in Route.SURFACES else None))
+                    db.session.commit()
+                    flash(f"Route \"{name}\" saved.")
+                    return redirect(url_for("routes_page"))
+        routes = Route.query.filter_by(user_id=current_user.id).order_by(Route.name).all()
+        return render_template("routes.html", routes=routes)
+
+    @app.route("/routes/<int:route_id>/delete", methods=["POST"])
+    @login_required
+    def route_delete(route_id):
+        route = get_own_route(route_id)
+        for run in route.runs:
+            run.route_id = None
+        db.session.delete(route)
+        db.session.commit()
+        flash("Route removed. Its runs were kept.")
+        return redirect(url_for("routes_page"))
 
     return app
 
