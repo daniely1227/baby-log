@@ -54,6 +54,17 @@ class Run(db.Model):
     def duration_text(self):
         return format_duration(self.duration_sec)
 
+    @property
+    def pace_sec_per_km(self):
+        """Seconds per km, calculated from time and distance (never stored)."""
+        if not self.distance_km or not self.duration_sec:
+            return None
+        return self.duration_sec / self.distance_km
+
+    @property
+    def pace_text(self):
+        return format_pace(self.pace_sec_per_km)
+
 
 class Star(db.Model):
     """Junction table: one row means "this user starred this run"."""
@@ -89,3 +100,11 @@ def parse_duration(text):
     if m >= 60 and len(nums) == 3 or s >= 60:
         raise ValueError("bad duration")
     return h * 3600 + m * 60 + s
+
+
+def format_pace(sec_per_km):
+    """361.5 -> '6:02 /km'."""
+    if sec_per_km is None:
+        return ""
+    total = int(round(sec_per_km))
+    return f"{total // 60}:{total % 60:02d} /km"

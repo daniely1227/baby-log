@@ -12,7 +12,7 @@ from flask_login import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from models import Route, Run, Star, User, db, format_duration, parse_duration
+from models import Route, Run, Star, User, db, format_duration, format_pace, parse_duration
 from stats import dashboard_stats
 
 APP_TZ = ZoneInfo(os.environ.get("APP_TZ", "America/Los_Angeles"))
@@ -129,8 +129,14 @@ SORTS = {
     "newest": lambda: (Run.run_at.desc(),),
     "oldest": lambda: (Run.run_at.asc(),),
     "longest": lambda: (Run.distance_km.desc(), Run.run_at.desc()),
+    "fastest": lambda: ((Run.duration_sec / Run.distance_km).asc(), Run.run_at.desc()),
 }
-SORT_LABELS = {"newest": "Newest first", "oldest": "Oldest first", "longest": "Longest distance"}
+SORT_LABELS = {
+    "newest": "Newest first",
+    "oldest": "Oldest first",
+    "longest": "Longest distance",
+    "fastest": "Fastest pace",
+}
 
 
 def database_url():
@@ -149,6 +155,7 @@ def create_app(config=None):
         app.config.update(config)
 
     db.init_app(app)
+    app.jinja_env.filters["pace"] = format_pace
 
     login_manager = LoginManager(app)
     login_manager.login_view = "login"

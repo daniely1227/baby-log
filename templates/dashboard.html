@@ -21,9 +21,29 @@
   </div>
 </div>
 
+<div class="stats">
+  <div class="stat card">
+    <div class="stat-label">Average pace, last 30 days</div>
+    <div class="stat-value" id="stat-avg-pace">{{ stats.avg_pace|pace if stats.avg_pace else '—' }}</div>
+  </div>
+  <div class="stat card">
+    <div class="stat-label">Best pace</div>
+    {% if stats.best_pace_run %}
+    <div class="stat-value" id="stat-best-pace">{{ stats.best_pace_run.pace_text }}</div>
+    <div class="muted small">{{ '%.1f'|format(stats.best_pace_run.distance_km) }} km on {{ stats.best_pace_run.run_at.strftime('%b %-d') }}</div>
+    {% else %}<div class="stat-value" id="stat-best-pace">—</div>{% endif %}
+  </div>
+</div>
+
 <section class="card">
   <h2>km per week, last 8 weeks</h2>
   <canvas id="weekChart" height="180" aria-label="Bar chart of km per week"></canvas>
+</section>
+
+<section class="card">
+  <h2>Pace, last 10 runs</h2>
+  <p class="muted small" style="margin-top:0">Minutes per km. Lower is faster.</p>
+  <canvas id="paceChart" height="180" aria-label="Line chart of pace for recent runs"></canvas>
 </section>
 
 <p class="muted">Based on {{ stats.total_runs }} run{{ '' if stats.total_runs == 1 else 's' }}. Weeks run Monday to Sunday.</p>
@@ -39,6 +59,20 @@
     options: {
       plugins: { legend: { display: false } },
       scales: { y: { beginAtZero: true, title: { display: true, text: 'km' } }, x: { grid: { display: false } } }
+    }
+  });
+  const fmt = v => `${Math.floor(v)}:${String(Math.round((v % 1) * 60)).padStart(2, '0')}`;
+  new Chart(document.getElementById('paceChart'), {
+    type: 'line',
+    data: {
+      labels: {{ stats.pace_labels|tojson }},
+      datasets: [{ label: 'min/km', data: {{ stats.pace_minutes|tojson }}, borderColor: '#111111',
+                   backgroundColor: '#111111', tension: 0.2, pointRadius: 4 }]
+    },
+    options: {
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => fmt(c.parsed.y) + ' /km' } } },
+      scales: { y: { title: { display: true, text: 'min per km' }, ticks: { callback: v => fmt(v) } },
+                x: { grid: { display: false } } }
     }
   });
 </script>
