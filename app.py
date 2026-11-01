@@ -1,5 +1,6 @@
 import csv
 import io
+import math
 import os
 import time
 from datetime import date, datetime, timedelta
@@ -28,8 +29,15 @@ def now_local():
 
 
 def parse_km(value):
+    """'5.2' -> 5.2, '' -> None. Raises ValueError for text, and for 'nan' or 'inf',
+    which Python would otherwise read as numbers."""
     value = (value or "").strip()
-    return float(value) if value else None
+    if not value:
+        return None
+    km = float(value)
+    if not math.isfinite(km):
+        raise ValueError("not a real number")
+    return km
 
 
 def get_own_route(route_id):
@@ -53,6 +61,7 @@ def user_routes():
 
 MAX_EMAIL = 255       # same as users.email
 MAX_ROUTE_NAME = 120  # same as routes.name
+MAX_DURATION_SEC = 100 * 3600  # 100 hours, far beyond any real run
 
 
 def parse_run_at(text):
@@ -87,7 +96,7 @@ def validate_run_form(form):
         errors.append("Please enter the distance in km.")
     else:
         try:
-            value = float(km)
+            value = parse_km(km)
         except ValueError:
             errors.append("Distance must be a number of km, like 5.2.")
         else:
@@ -101,13 +110,17 @@ def validate_run_form(form):
         errors.append("Please enter how long the run took, like 32:15.")
     else:
         try:
-            if parse_duration(duration) == 0:
-                errors.append("Time must be more than 0:00.")
+            seconds = parse_duration(duration)
         except ValueError:
             errors.append("Time should look like 32:15 (minutes:seconds) or 1:05:30.")
+        else:
+            if seconds == 0:
+                errors.append("Time must be more than 0:00.")
+            elif seconds >= MAX_DURATION_SEC:
+                errors.append("That time looks too long. Please check it.")
 
     route_id = form.get("route_id") or ""
-    if route_id and not (route_id.isdigit() and
+    if route_id and not (route_id.isdecimal() and
                          Route.query.filter_by(id=int(route_id), user_id=current_user.id).first()):
         errors.append("Please pick one of your own routes.")
 
@@ -129,9 +142,9 @@ def form_preview(form):
     except ValueError:
         run.distance_km = None
     rid = form.get("route_id") or ""
-    run.route_id = int(rid) if rid.isdigit() else None
+    run.route_id = int(rid) if rid.isdecimal() else None
     eff = form.get("effort") or ""
-    run.effort = int(eff) if eff.isdigit() else None
+    run.effort = int(eff) if eff.isdecimal() else None
     run.notes = form.get("notes", "")
     return run
 
@@ -191,6 +204,11 @@ def create_app(config=None):
     app = Flask(__name__)
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-only-secret")
     app.config["SQLALCHEMY_DATABASE_URI"] = database_url()
+    # Test each saved database connection before using it, so a database restart on
+    # Render doesn't turn the next page into a server error.
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_pre_ping": True}
+    # Don't send the login cookie with form posts that come from other websites.
+    app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
     if config:
         app.config.update(config)
 
@@ -357,7 +375,7 @@ def create_app(config=None):
         route_id = request.args.get("route", "")
         if route_id == "none":
             query = query.filter(Run.route_id.is_(None))
-        elif route_id.isdigit() and any(r.id == int(route_id) for r in routes):
+        elif route_id.isdecimal() and any(r.id == int(route_id) for r in routes):
             query = query.filter(Run.route_id == int(route_id))
         else:
             route_id = ""
@@ -396,7 +414,7 @@ def create_app(config=None):
     def run_new():
         run = Run(user_id=current_user.id, run_at=now_local())
         pre = request.args.get("route", "")
-        if pre.isdigit():
+        if pre.isdecimal():
             route = Route.query.filter_by(id=int(pre), user_id=current_user.id).first()
             if route:
                 run.route_id, run.distance_km = route.id, route.distance_km
@@ -497,8 +515,9 @@ def create_app(config=None):
             db.session.add(Star(user_id=current_user.id, run_id=run.id))
         db.session.commit()
         nxt = request.form.get("next", "")
-        # Only follow links inside this app (no "//other-site.com" redirects).
-        if not nxt.startswith("/") or nxt.startswith("//"):
+        # Only follow links inside this app. Browsers read "//site.com" and "/\site.com"
+        # as another website, so both are refused.
+        if not nxt.startswith("/") or nxt.startswith("//") or "\\" in nxt:
             nxt = url_for("run_detail", run_id=run.id)
         return redirect(nxt)
 
