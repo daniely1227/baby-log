@@ -1,3 +1,14 @@
+{% macro star_button(run, next_url) %}
+<form method="post" action="{{ url_for('run_star', run_id=run.id) }}" class="star-form">
+  <input type="hidden" name="next" value="{{ next_url }}">
+  {% if run.is_starred_by(current_user) %}
+  <button type="submit" class="star on" title="Remove star" aria-label="Remove star">★</button>
+  {% else %}
+  <button type="submit" class="star" title="Star this run" aria-label="Star this run">☆</button>
+  {% endif %}
+</form>
+{% endmacro %}
+
 {% macro run_rows(runs, next_url) %}
 <ul class="log-list">
   {% for run in runs %}
@@ -7,6 +18,7 @@
       <span class="log-main">{{ run.duration_text }}{% if run.route %} <span class="muted">· {{ run.route.name }}</span>{% endif %}{% if run.notes %} <span class="muted">· {{ run.notes|truncate(30) }}</span>{% endif %}</span>
       <span class="muted log-time">{{ run.run_at.strftime('%a %b %-d') }}</span>
     </a>
+    {{ star_button(run, next_url) }}
   </li>
   {% endfor %}
 </ul>

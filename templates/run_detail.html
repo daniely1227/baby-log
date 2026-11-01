@@ -1,11 +1,12 @@
 {% extends "base.html" %}
+{% from "_macros.html" import star_button with context %}
 {% block title %}Run · Run Log{% endblock %}
 {% block content %}
 <p><a href="{{ url_for('runs_list') }}">← All runs</a></p>
 <section class="card">
   <div class="row-between">
     <h1>{{ '%.2f'|format(run.distance_km) }} km in {{ run.duration_text }}</h1>
-    {% block star %}{% endblock %}
+    {{ star_button(run, request.path) }}
   </div>
   <dl class="details">
     <dt>When</dt><dd>{{ run.run_at.strftime('%a, %b %-d %Y, %-I:%M %p') }}</dd>

@@ -45,9 +45,26 @@ class Run(db.Model):
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    stars = db.relationship("Star", backref="run", lazy=True, cascade="all, delete-orphan")
+
+    def is_starred_by(self, user):
+        return any(s.user_id == user.id for s in self.stars)
+
     @property
     def duration_text(self):
         return format_duration(self.duration_sec)
+
+
+class Star(db.Model):
+    """Junction table: one row means "this user starred this run"."""
+
+    __tablename__ = "stars"
+    __table_args__ = (db.UniqueConstraint("user_id", "run_id", name="uq_star_user_run"),)
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    run_id = db.Column(db.Integer, db.ForeignKey("runs.id"), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
 def format_duration(seconds):
