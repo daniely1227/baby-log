@@ -110,3 +110,6 @@ a.log-row:hover { background: var(--soft); }
 .details { display: grid; grid-template-columns: 110px 1fr; gap: 8px 12px; margin: 12px 0; }
 .details dt { color: var(--muted); }
 .details dd { margin: 0; }
+
+.errors { border: 1px solid var(--danger); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; color: var(--danger); }
+.errors ul { margin: 6px 0 0; padding-left: 18px; }

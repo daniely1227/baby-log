@@ -3,6 +3,12 @@
 {% block content %}
 <section class="card">
   <h1>{{ 'Log a run' if is_new else 'Edit run' }}</h1>
+  {% if errors %}
+  <div class="errors" role="alert">
+    <strong>Almost there. Please fix this first.</strong>
+    <ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+  </div>
+  {% endif %}
   <form method="post" novalidate>
     <label>Date and time
       <input type="datetime-local" name="run_at" value="{{ run.run_at.strftime('%Y-%m-%dT%H:%M') if run.run_at else '' }}">
