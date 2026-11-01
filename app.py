@@ -124,6 +124,14 @@ def fill_run_from_form(run, form):
     return run
 
 
+SORTS = {
+    "newest": lambda: (Run.run_at.desc(),),
+    "oldest": lambda: (Run.run_at.asc(),),
+    "longest": lambda: (Run.distance_km.desc(), Run.run_at.desc()),
+}
+SORT_LABELS = {"newest": "Newest first", "oldest": "Oldest first", "longest": "Longest distance"}
+
+
 def database_url():
     url = os.environ.get("DATABASE_URL", "sqlite:///runlog.db")
     # Render gives postgres:// but SQLAlchemy wants postgresql://
@@ -244,8 +252,42 @@ def create_app(config=None):
     @app.route("/runs")
     @login_required
     def runs_list():
-        runs = Run.query.filter_by(user_id=current_user.id).order_by(Run.run_at.desc()).all()
-        return render_template("runs_list.html", runs=runs)
+        query = Run.query.filter_by(user_id=current_user.id)
+        routes = user_routes()
+
+        route_id = request.args.get("route", "")
+        if route_id == "none":
+            query = query.filter(Run.route_id.is_(None))
+        elif route_id.isdigit() and any(r.id == int(route_id) for r in routes):
+            query = query.filter(Run.route_id == int(route_id))
+        else:
+            route_id = ""
+
+        month = request.args.get("month", "")
+        if month:
+            try:
+                start = datetime.strptime(month, "%Y-%m")
+            except ValueError:
+                flash("That month doesn't look right, so it was ignored.")
+                month = ""
+            else:
+                end = (start + timedelta(days=32)).replace(day=1)
+                query = query.filter(Run.run_at >= start, Run.run_at < end)
+
+        q = request.args.get("q", "").strip()
+        if q:
+            query = query.filter(Run.notes.ilike(f"%{q}%"))
+
+        sort = request.args.get("sort", "newest")
+        order = SORTS.get(sort)
+        if order is None:
+            sort, order = "newest", SORTS["newest"]
+        runs = query.order_by(*order()).all()
+
+        filters = {"route": route_id, "month": month, "q": q, "sort": sort}
+        filtering = bool(route_id or month or q)
+        return render_template("runs_list.html", runs=runs, routes=routes, filters=filters,
+                               filtering=filtering, sort_labels=SORT_LABELS)
 
     @app.route("/runs/new", methods=["GET", "POST"])
     @login_required

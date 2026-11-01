@@ -6,8 +6,41 @@
   <h1>My runs</h1>
   <a class="btn" href="{{ url_for('run_new') }}">+ Add run</a>
 </div>
+<form method="get" class="filters card">
+  <label>Search notes
+    <input type="search" name="q" value="{{ filters.q }}" placeholder="e.g. windy">
+  </label>
+  <label>Route
+    <select name="route">
+      <option value="">All routes</option>
+      {% for r in routes %}<option value="{{ r.id }}" {% if filters.route == r.id|string %}selected{% endif %}>{{ r.name }}</option>{% endfor %}
+      <option value="none" {% if filters.route == 'none' %}selected{% endif %}>No route</option>
+    </select>
+  </label>
+  <label>Month
+    <input type="month" name="month" value="{{ filters.month }}">
+  </label>
+  <label>Sort
+    <select name="sort">
+      {% for key, label in sort_labels.items() %}
+      <option value="{{ key }}" {% if filters.sort == key %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <div class="actions">
+    <button class="btn" type="submit">Apply</button>
+    {% if filtering or filters.sort != 'newest' %}<a class="btn secondary" href="{{ url_for('runs_list') }}">Clear</a>{% endif %}
+  </div>
+</form>
+
 {% if runs %}
+<p class="muted">{{ runs|length }} run{{ '' if runs|length == 1 else 's' }} · {{ '%.1f'|format(runs|sum(attribute='distance_km')) }} km</p>
 {{ run_rows(runs, request.full_path) }}
+{% elif filtering %}
+<div class="card empty">
+  <p>No runs match these filters.</p>
+  <a class="btn secondary" href="{{ url_for('runs_list') }}">Clear filters</a>
+</div>
 {% else %}
 <div class="card empty">
   <p>No runs yet.</p>
