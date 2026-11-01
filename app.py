@@ -12,7 +12,7 @@ from flask_login import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from models import Route, Run, User, db, format_duration, parse_duration
+from models import Route, Run, Star, User, db, format_duration, parse_duration
 
 APP_TZ = ZoneInfo(os.environ.get("APP_TZ", "America/Los_Angeles"))
 
@@ -297,6 +297,35 @@ def create_app(config=None):
             flash("Run deleted.")
             return redirect(url_for("runs_list"))
         return render_template("run_delete.html", run=run)
+
+    # ---------- Stars ----------
+
+    @app.route("/runs/<int:run_id>/star", methods=["POST"])
+    @login_required
+    def run_star(run_id):
+        run = get_own_run(run_id)
+        star = Star.query.filter_by(user_id=current_user.id, run_id=run.id).first()
+        if star:
+            db.session.delete(star)
+        else:
+            db.session.add(Star(user_id=current_user.id, run_id=run.id))
+        db.session.commit()
+        nxt = request.form.get("next", "")
+        # Only follow links inside this app (no "//other-site.com" redirects).
+        if not nxt.startswith("/") or nxt.startswith("//"):
+            nxt = url_for("run_detail", run_id=run.id)
+        return redirect(nxt)
+
+    @app.route("/starred")
+    @login_required
+    def starred():
+        runs = (
+            Run.query.join(Star, Star.run_id == Run.id)
+            .filter(Star.user_id == current_user.id)
+            .order_by(Run.run_at.desc())
+            .all()
+        )
+        return render_template("starred.html", runs=runs)
 
     return app
 

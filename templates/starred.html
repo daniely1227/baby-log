@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% from "_macros.html" import run_rows with context %}
+{% block title %}Starred · Run Log{% endblock %}
+{% block content %}
+<h1>★ Starred runs</h1>
+<p class="muted">Runs you marked to remember, like a personal best or a run that felt great.</p>
+{% if runs %}
+{{ run_rows(runs, request.full_path) }}
+{% else %}
+<div class="card empty"><p>Nothing starred yet. Tap ☆ on any run to keep it here.</p></div>
+{% endif %}
+{% endblock %}
