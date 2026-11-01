@@ -90,7 +90,7 @@ def format_duration(seconds):
 def parse_duration(text):
     """'32:15' or '1:02:05' -> seconds. Raises ValueError if the format is wrong."""
     parts = (text or "").strip().split(":")
-    if len(parts) not in (2, 3) or not all(p.isdigit() for p in parts):
+    if len(parts) not in (2, 3) or not all(p.isdecimal() for p in parts):
         raise ValueError("bad duration")
     nums = [int(p) for p in parts]
     if len(nums) == 2:
