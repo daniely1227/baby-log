@@ -51,16 +51,36 @@ def user_routes():
     return Route.query.filter_by(user_id=current_user.id).order_by(Route.name).all()
 
 
+MAX_EMAIL = 255       # same as users.email
+MAX_ROUTE_NAME = 120  # same as routes.name
+
+
+def parse_run_at(text):
+    """'2026-10-31T07:30' -> datetime. Raises ValueError for anything else."""
+    value = datetime.fromisoformat((text or "").strip())
+    if value.tzinfo is not None:
+        raise ValueError("time zone not expected")
+    return value
+
+
+def looks_like_email(email):
+    name, at, domain = email.partition("@")
+    return bool(name) and at == "@" and "." in domain.strip(".") and " " not in email
+
+
 def validate_run_form(form):
     """Return a list of friendly error messages. Empty list means the form is OK."""
     errors = []
-    try:
-        if not form.get("run_at", "").strip():
-            errors.append("Please enter the date and time of the run.")
+    if not form.get("run_at", "").strip():
+        errors.append("Please enter the date and time of the run.")
+    else:
+        try:
+            run_at = parse_run_at(form["run_at"])
+        except ValueError:
+            errors.append("The date doesn't look right. Please pick it again.")
         else:
-            datetime.fromisoformat(form["run_at"].strip())
-    except ValueError:
-        errors.append("The date doesn't look right. Please pick it again.")
+            if run_at.date() > now_local().date():
+                errors.append("That date is in the future. Please pick the day you ran.")
 
     km = form.get("distance_km", "").strip()
     if not km:
@@ -101,7 +121,7 @@ def form_preview(form):
     """A run object (not saved) that holds what the user typed, so the form can be shown again."""
     run = Run()
     try:
-        run.run_at = datetime.fromisoformat(form.get("run_at", "").strip())
+        run.run_at = parse_run_at(form.get("run_at"))
     except ValueError:
         run.run_at = None
     try:
@@ -118,7 +138,7 @@ def form_preview(form):
 
 def fill_run_from_form(run, form):
     """Copy form values onto a run. Raises ValueError if something can't be read."""
-    run.run_at = datetime.fromisoformat(form.get("run_at", "").strip())
+    run.run_at = parse_run_at(form.get("run_at"))
     run.distance_km = float(form.get("distance_km", "").strip())
     run.duration_sec = parse_duration(form.get("duration"))
     route_id = form.get("route_id") or None
@@ -199,6 +219,8 @@ def create_app(config=None):
             password = request.form.get("password", "")
             if not email or not password:
                 flash("Please enter an email and a password.")
+            elif len(email) > MAX_EMAIL or not looks_like_email(email):
+                flash("That email doesn't look right. Please check it.")
             elif len(password) < 6:
                 flash("Password needs at least 6 characters.")
             elif User.query.filter_by(email=email).first():
@@ -299,6 +321,8 @@ def create_app(config=None):
             else:
                 if not name:
                     flash("Please give the route a name.")
+                elif len(name) > MAX_ROUTE_NAME:
+                    flash(f"Please keep the route name to {MAX_ROUTE_NAME} characters or fewer.")
                 elif km is not None and km <= 0:
                     flash("Distance must be more than 0 km.")
                 else:
