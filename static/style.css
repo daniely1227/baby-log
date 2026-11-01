@@ -123,3 +123,15 @@ a.log-row:hover { background: var(--soft); }
 .stat-label { color: var(--muted); font-size: 13px; }
 .stat-value { font-size: 28px; font-weight: 700; margin-top: 4px; }
 .small { font-size: 13px; }
+
+.quick-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.quick-grid form { margin: 0; }
+.quick {
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  width: 100%; min-height: 72px; padding: 12px;
+  border: 1px solid var(--text); border-radius: 12px;
+  background: var(--bg); color: var(--text);
+  font: inherit; font-weight: 600; text-decoration: none; cursor: pointer;
+}
+.quick small { font-weight: 400; color: var(--muted); }
+.quick:active { background: var(--text); color: var(--bg); }

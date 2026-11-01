@@ -215,7 +215,45 @@ def create_app(config=None):
     @app.route("/")
     @login_required
     def home():
-        return render_template("home.html")
+        recent = (
+            Run.query.filter_by(user_id=current_user.id).order_by(Run.run_at.desc()).limit(5).all()
+        )
+        quick = []
+        for route in user_routes():
+            last = (
+                Run.query.filter_by(user_id=current_user.id, route_id=route.id)
+                .order_by(Run.run_at.desc())
+                .first()
+            )
+            quick.append({"route": route, "last": last})
+        return render_template("home.html", recent=recent, quick=quick)
+
+    @app.route("/routes/<int:route_id>/repeat", methods=["POST"])
+    @login_required
+    def route_repeat(route_id):
+        """One tap: log a run now on this route with the same distance and time as last time."""
+        route = get_own_route(route_id)
+        last = (
+            Run.query.filter_by(user_id=current_user.id, route_id=route.id)
+            .order_by(Run.run_at.desc())
+            .first()
+        )
+        if last is None:
+            flash(f"No earlier run on {route.name} to copy yet. Log this one with the form.")
+            return redirect(url_for("run_new", route=route.id))
+        run = Run(
+            user_id=current_user.id,
+            route_id=route.id,
+            run_at=now_local(),
+            distance_km=last.distance_km,
+            duration_sec=last.duration_sec,
+            effort=last.effort,
+        )
+        db.session.add(run)
+        db.session.commit()
+        flash(f"Logged {run.distance_km:g} km on {route.name} in {run.duration_text}. "
+              "Tap Edit if today was different.")
+        return redirect(url_for("run_detail", run_id=run.id))
 
     # ---------- Routes (places I run) ----------
 
@@ -301,6 +339,11 @@ def create_app(config=None):
     @login_required
     def run_new():
         run = Run(user_id=current_user.id, run_at=now_local())
+        pre = request.args.get("route", "")
+        if pre.isdigit():
+            route = Route.query.filter_by(id=int(pre), user_id=current_user.id).first()
+            if route:
+                run.route_id, run.distance_km = route.id, route.distance_km
         if request.method == "POST":
             errors = validate_run_form(request.form)
             if errors:
