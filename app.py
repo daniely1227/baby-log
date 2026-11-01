@@ -1,8 +1,10 @@
+import csv
+import io
 import os
 from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
-from flask import Flask, abort, flash, redirect, render_template, request, url_for
+from flask import Flask, Response, abort, flash, redirect, render_template, request, url_for
 from flask_login import (
     LoginManager,
     current_user,
@@ -398,6 +400,35 @@ def create_app(config=None):
             flash("Run deleted.")
             return redirect(url_for("runs_list"))
         return render_template("run_delete.html", run=run)
+
+    # ---------- CSV export ----------
+
+    @app.route("/export.csv")
+    @login_required
+    def export_csv():
+        runs = Run.query.filter_by(user_id=current_user.id).order_by(Run.run_at.asc()).all()
+        buf = io.StringIO()
+        writer = csv.writer(buf)
+        writer.writerow(["date", "time", "route", "distance_km", "duration", "pace_per_km",
+                         "effort", "notes", "starred"])
+        for r in runs:
+            writer.writerow([
+                r.run_at.strftime("%Y-%m-%d"),
+                r.run_at.strftime("%H:%M"),
+                r.route.name if r.route else "",
+                f"{r.distance_km:g}",
+                r.duration_text,
+                r.pace_text.replace(" /km", ""),
+                r.effort or "",
+                r.notes or "",
+                "yes" if r.is_starred_by(current_user) else "",
+            ])
+        filename = f"run-log-{now_local().strftime('%Y-%m-%d')}.csv"
+        return Response(
+            "\ufeff" + buf.getvalue(),  # BOM so Excel opens it as UTF-8
+            mimetype="text/csv",
+            headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+        )
 
     # ---------- Dashboard ----------
 
