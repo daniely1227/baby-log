@@ -46,6 +46,71 @@ def user_routes():
     return Route.query.filter_by(user_id=current_user.id).order_by(Route.name).all()
 
 
+def validate_run_form(form):
+    """Return a list of friendly error messages. Empty list means the form is OK."""
+    errors = []
+    try:
+        if not form.get("run_at", "").strip():
+            errors.append("Please enter the date and time of the run.")
+        else:
+            datetime.fromisoformat(form["run_at"].strip())
+    except ValueError:
+        errors.append("The date doesn't look right. Please pick it again.")
+
+    km = form.get("distance_km", "").strip()
+    if not km:
+        errors.append("Please enter the distance in km.")
+    else:
+        try:
+            value = float(km)
+        except ValueError:
+            errors.append("Distance must be a number of km, like 5.2.")
+        else:
+            if value <= 0:
+                errors.append("Distance must be more than 0 km.")
+            elif value > 200:
+                errors.append("That distance looks too long. Please check the km.")
+
+    duration = form.get("duration", "").strip()
+    if not duration:
+        errors.append("Please enter how long the run took, like 32:15.")
+    else:
+        try:
+            if parse_duration(duration) == 0:
+                errors.append("Time must be more than 0:00.")
+        except ValueError:
+            errors.append("Time should look like 32:15 (minutes:seconds) or 1:05:30.")
+
+    route_id = form.get("route_id") or ""
+    if route_id and not (route_id.isdigit() and
+                         Route.query.filter_by(id=int(route_id), user_id=current_user.id).first()):
+        errors.append("Please pick one of your own routes.")
+
+    effort = form.get("effort") or ""
+    if effort and effort not in {"1", "2", "3", "4", "5"}:
+        errors.append("Effort must be between 1 and 5.")
+    return errors
+
+
+def form_preview(form):
+    """A run object (not saved) that holds what the user typed, so the form can be shown again."""
+    run = Run()
+    try:
+        run.run_at = datetime.fromisoformat(form.get("run_at", "").strip())
+    except ValueError:
+        run.run_at = None
+    try:
+        run.distance_km = float(form.get("distance_km", "").strip())
+    except ValueError:
+        run.distance_km = None
+    rid = form.get("route_id") or ""
+    run.route_id = int(rid) if rid.isdigit() else None
+    eff = form.get("effort") or ""
+    run.effort = int(eff) if eff.isdigit() else None
+    run.notes = form.get("notes", "")
+    return run
+
+
 def fill_run_from_form(run, form):
     """Copy form values onto a run. Raises ValueError if something can't be read."""
     run.run_at = datetime.fromisoformat(form.get("run_at", "").strip())
@@ -187,12 +252,12 @@ def create_app(config=None):
     def run_new():
         run = Run(user_id=current_user.id, run_at=now_local())
         if request.method == "POST":
-            try:
-                fill_run_from_form(run, request.form)
-            except ValueError:
-                flash("Please check the form.")
-                return render_template("run_form.html", run=run, is_new=True, routes=user_routes(),
-                                       duration=request.form.get("duration", "")), 400
+            errors = validate_run_form(request.form)
+            if errors:
+                return render_template("run_form.html", run=form_preview(request.form), is_new=True,
+                                       routes=user_routes(), duration=request.form.get("duration", ""),
+                                       errors=errors), 400
+            fill_run_from_form(run, request.form)
             db.session.add(run)
             db.session.commit()
             flash("Run saved.")
@@ -209,13 +274,13 @@ def create_app(config=None):
     def run_edit(run_id):
         run = get_own_run(run_id)
         if request.method == "POST":
-            try:
-                fill_run_from_form(run, request.form)
-            except ValueError:
-                db.session.rollback()
-                flash("Please check the form.")
-                return render_template("run_form.html", run=run, is_new=False, routes=user_routes(),
-                                       duration=request.form.get("duration", "")), 400
+            errors = validate_run_form(request.form)
+            if errors:
+                preview = form_preview(request.form)
+                preview.id = run.id
+                return render_template("run_form.html", run=preview, is_new=False, routes=user_routes(),
+                                       duration=request.form.get("duration", ""), errors=errors), 400
+            fill_run_from_form(run, request.form)
             db.session.commit()
             flash("Run updated.")
             return redirect(url_for("run_detail", run_id=run.id))
