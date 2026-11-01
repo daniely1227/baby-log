@@ -75,3 +75,28 @@ def dashboard_stats(runs, now):
         "week_km": totals,
         "total_runs": len(runs),
     }
+
+
+def days_since_last_run(runs, now):
+    """Whole days between the last run's date and today, or None if there are no runs."""
+    if not runs:
+        return None
+    last = max(r.run_at for r in runs)
+    return (now.date() - last.date()).days
+
+
+def weekly_streak(runs, now):
+    """How many Monday-to-Sunday weeks in a row have at least one run.
+
+    The current week counts if it already has a run. If it doesn't yet, the streak
+    is still alive and is counted from last week, because the week isn't over.
+    """
+    weeks_with_runs = {week_start(r.run_at.date()) for r in runs}
+    week = week_start(now.date())
+    if week not in weeks_with_runs:
+        week -= timedelta(weeks=1)
+    streak = 0
+    while week in weeks_with_runs:
+        streak += 1
+        week -= timedelta(weeks=1)
+    return streak

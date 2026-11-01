@@ -13,7 +13,7 @@ from flask_login import (
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from models import Route, Run, Star, User, db, format_duration, format_pace, parse_duration
-from stats import dashboard_stats
+from stats import dashboard_stats, days_since_last_run, weekly_streak
 
 APP_TZ = ZoneInfo(os.environ.get("APP_TZ", "America/Los_Angeles"))
 
@@ -226,7 +226,15 @@ def create_app(config=None):
                 .first()
             )
             quick.append({"route": route, "last": last})
-        return render_template("home.html", recent=recent, quick=quick)
+        all_runs = Run.query.filter_by(user_id=current_user.id).all()
+        now = now_local()
+        return render_template(
+            "home.html",
+            recent=recent,
+            quick=quick,
+            days_since=days_since_last_run(all_runs, now),
+            streak=weekly_streak(all_runs, now),
+        )
 
     @app.route("/routes/<int:route_id>/repeat", methods=["POST"])
     @login_required
