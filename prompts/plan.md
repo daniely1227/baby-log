@@ -1,13 +1,13 @@
-# Prompt log: plan
+# Prompt log for plan
 
 ## My decisions (given to the agent as answers in an interview)
 
-- First idea was a baby log, but I don't have a baby yet, so I switched before merging the plan: the app tracks my jogging.
+- First idea was a baby log, but I don't have a baby yet, so I switched before merging the plan. The app tracks my jogging.
 - Distance in km.
-- My features: pace (my own addition), one-tap repeat of a usual route, last run and streak, CSV export.
-- Design: clean monochrome.
-- Hosting: Render.
-- Tools: Claude Code builds; I review, merge and deploy.
+- My features are pace (my own addition), one-tap repeat of a usual route, last run and streak, and CSV export.
+- Clean monochrome design.
+- Hosted on Render.
+- Claude Code builds, tests, opens and merges the pull requests. I deploy it and use it.
 
 ## Prompt
 

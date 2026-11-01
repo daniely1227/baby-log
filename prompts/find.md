@@ -1,4 +1,4 @@
-# Prompt log: find things (feature 6)
+# Prompt log for find things (feature 6)
 
 ## Prompt
 
@@ -10,4 +10,4 @@ Extended /runs to read q, route, month and sort from the URL and build the query
 
 ## Checked
 
-With runs of 8 km (Sept, Hills), 5 km (Oct 30, Marina) and 10 km (Oct 31, no route): newest = 10, 5, 8; oldest = 8, 5, 10; longest = 10, 8, 5; route=Marina → 5; no route → 10; month=2026-09 → 8; "windy" → 10 and 5. A nonsense month shows a message instead of crashing, and a route id that isn't mine is ignored.
+With runs of 8 km (Sept, Hills), 5 km (Oct 30, Marina) and 10 km (Oct 31, no route), the results were newest = 10, 5, 8; oldest = 8, 5, 10; longest = 10, 8, 5; route=Marina → 5; no route → 10; month=2026-09 → 8; "windy" → 10 and 5. A nonsense month shows a message instead of crashing, and a route id that isn't mine is ignored.

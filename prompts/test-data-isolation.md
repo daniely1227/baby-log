@@ -1,4 +1,4 @@
-# Prompt log: test 1, data isolation
+# Prompt log for test 1, data isolation
 
 ## Prompt
 

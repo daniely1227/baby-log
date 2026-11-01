@@ -1,4 +1,4 @@
-# Prompt log: dashboard (feature 7)
+# Prompt log for dashboard (feature 7)
 
 ## Prompt
 
@@ -6,8 +6,8 @@
 
 ## Agent response (summary)
 
-Created stats.py with week_start(), km_in_last_days(), runs_in_last_days(), longest_run(), weekly_km() and dashboard_stats(). The /dashboard route loads only the logged-in user's runs. The chart loads Chart.js 4.4.1 from cdnjs. With no runs the longest-run card shows "—" instead of crashing.
+Created stats.py with week_start(), km_in_last_days(), runs_in_last_days(), longest_run(), weekly_km() and dashboard_stats(). The /dashboard route loads only the logged-in user's runs. The chart loads Chart.js 4.4.1 from cdnjs. With no runs the longest-run card shows a dash instead of crashing.
 
 ## Checked
 
-With runs of 5 km (1 day ago), 3.5 km (3 days ago), 10 km (6 days ago) and 20 km (10 days ago): km in the last 7 days = 18.5 km, runs in the last 30 days = 4, longest = 20.0 km, and the chart put 18.5 km in the current week and 20 km in the week before.
+With runs of 5 km (1 day ago), 3.5 km (3 days ago), 10 km (6 days ago) and 20 km (10 days ago), the cards showed km in the last 7 days = 18.5 km, runs in the last 30 days = 4, longest = 20.0 km, and the chart put 18.5 km in the current week and 20 km in the week before.

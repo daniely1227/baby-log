@@ -1,4 +1,4 @@
-# Prompt log: README and schema.md
+# Prompt log for README and schema.md
 
 ## Prompt
 

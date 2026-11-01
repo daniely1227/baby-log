@@ -1,4 +1,4 @@
-# Prompt log: last run and weekly streak (my feature 10)
+# Prompt log for last run and weekly streak (my feature 10)
 
 ## Prompt
 
@@ -10,4 +10,4 @@ Added days_since_last_run() and weekly_streak() to stats.py and two highlighted 
 
 ## Checked
 
-Using fixed dates with "now" on Sunday Nov 1: no runs → 0; a run today → 1; runs on Oct 20 and Oct 28 (two weeks in a row) → 2; runs on Oct 14 and Oct 28 (a gap week between) → 1. On Tuesday Nov 3 with no run yet that week, the Oct 20 + Oct 28 streak still shows 2, and days since the Oct 28 run = 6. On the live page, a new account shows "No runs yet" and "0 weeks"; after a run 2 days ago it shows "2 days ago" and "1 week".
+Using fixed dates with "now" on Sunday Nov 1, the results were no runs → 0; a run today → 1; runs on Oct 20 and Oct 28 (two weeks in a row) → 2; runs on Oct 14 and Oct 28 (a gap week between) → 1. On Tuesday Nov 3 with no run yet that week, the Oct 20 + Oct 28 streak still shows 2, and days since the Oct 28 run = 6. On the live page, a new account shows "No runs yet" and "0 weeks"; after a run 2 days ago it shows "2 days ago" and "1 week".

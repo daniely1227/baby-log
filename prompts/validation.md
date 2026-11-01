@@ -1,4 +1,4 @@
-# Prompt log: validation (feature 4)
+# Prompt log for validation (feature 4)
 
 ## Prompt
 

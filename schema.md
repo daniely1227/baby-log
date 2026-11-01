@@ -29,7 +29,7 @@ The places a user usually runs. Belongs to one user.
 | user_id | integer | → users.id, required |
 | name | text | required |
 | distance_km | number (float) | optional usual distance |
-| surface | text | optional: road / trail / track / treadmill |
+| surface | text | optional, one of road, trail, track or treadmill |
 
 ## runs
 
@@ -64,11 +64,11 @@ A unique constraint on (user_id, run_id) stops the same run being starred twice 
 
 ## How the tables relate
 
-- users → routes: one-to-many
-- users → runs: one-to-many
-- routes → runs: one-to-many (a run may have no route)
-- users ↔ runs through stars: many-to-many
+- One user has many routes (one-to-many).
+- One user has many runs (one-to-many).
+- One route has many runs (one-to-many). A run may have no route.
+- Users and runs are many-to-many through stars.
 
 ## Compared with PLAN.md section 3
 
-The agent built the same four tables with the same columns and types as the plan. Two details were added that the plan didn't spell out: removing a route sets its runs' route_id to empty instead of deleting the runs, and deleting a run also deletes its stars. Duration is stored as whole seconds, which the plan described as "number"; the app converts to and from "mm:ss" on the forms.
+The agent built the same four tables with the same columns and types as the plan. Two details were added that the plan didn't spell out. Removing a route sets its runs' route_id to empty instead of deleting the runs, and deleting a run also deletes its stars. Duration is stored as whole seconds, which the plan described as "number"; the app converts to and from "mm:ss" on the forms.

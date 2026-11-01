@@ -1,4 +1,4 @@
-# Prompt log: pace (my feature 8)
+# Prompt log for pace (my feature 8)
 
 ## Prompt
 
@@ -10,4 +10,4 @@ Added Run.pace_sec_per_km and Run.pace_text, a format_pace() helper registered a
 
 ## Checked
 
-Runs of 5 km in 30:00, 10 km in 55:00 and 4 km in 26:00: the paces were 6:00, 5:30 and 6:30 /km; "Fastest pace" sorted them 5:30, 6:00, 6:30; best pace = 5:30 /km; the 30-day average was 5:51 /km (6660 s / 19 km), not 6:00 (the plain average of the three paces), which confirms long runs weigh more. With no runs, the pace cards show "—".
+Runs of 5 km in 30:00, 10 km in 55:00 and 4 km in 26:00 gave paces of 6:00, 5:30 and 6:30 /km; "Fastest pace" sorted them 5:30, 6:00, 6:30; best pace = 5:30 /km; the 30-day average was 5:51 /km (6660 s / 19 km), not 6:00 (the plain average of the three paces), which confirms long runs weigh more. With no runs, the pace cards show a dash.

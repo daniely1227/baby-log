@@ -1,4 +1,4 @@
-# Prompt log: create / read / update / delete runs (feature 3)
+# Prompt log for create / read / update / delete runs (feature 3)
 
 ## Prompt
 

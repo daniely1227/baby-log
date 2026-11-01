@@ -1,4 +1,4 @@
-# Prompt log: stars (feature 5)
+# Prompt log for stars (feature 5)
 
 ## Prompt
 

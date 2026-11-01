@@ -1,4 +1,4 @@
-# Prompt log: one-tap repeat run (my feature 9)
+# Prompt log for one-tap repeat run (my feature 9)
 
 ## Prompt
 

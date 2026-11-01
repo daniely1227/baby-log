@@ -2,7 +2,7 @@
 
 A small web app for logging my jogging runs in km. Each run has a date, distance, time, optional route, effort and notes. The app works out the pace, shows weekly totals and a pace trend, and keeps my habit going with a weekly streak.
 
-**Live app:** LIVE_URL_PLACEHOLDER
+Try the live app at LIVE_URL_PLACEHOLDER
 
 Built for the Intro to Code solo app assignment (Haas, Fall 2026). See [PLAN.md](PLAN.md) for the plan and [schema.md](schema.md) for the database.
 
@@ -38,7 +38,7 @@ models.py     tables: User, Route, Run, Star, plus time and pace helpers
 stats.py      dashboard and streak math (kept separate so it can be tested)
 templates/    HTML pages (Jinja)
 static/       style.css
-tests/        the two required tests
+tests/        the two required tests, plus a check on the database address
 prompts/      prompt log for every feature
 ```
 
@@ -47,8 +47,8 @@ prompts/      prompt log for every feature
 ```bash
 git clone https://github.com/daniely1227/run-log.git
 cd run-log
-python3 -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
+python3 -m venv .venv            # on Windows use python instead of python3
+source .venv/bin/activate        # on Windows run .venv\Scripts\activate
 pip install -r requirements.txt
 python app.py                    # then open http://127.0.0.1:5000
 ```
@@ -61,8 +61,9 @@ Without a `DATABASE_URL`, the app uses a local SQLite file, so no database setup
 python -m pytest -q
 ```
 
-- `tests/test_data_isolation.py`: User B can't see, open, edit, delete or star User A's run.
-- `tests/test_dashboard.py`: "km in the last 7 days" shows 18.5 km for runs of 5, 3.5 and 10 km, ignoring a 20 km run from 10 days ago.
+- `tests/test_data_isolation.py` checks that User B can't see, open, edit, delete or star User A's run.
+- `tests/test_dashboard.py` checks that "km in the last 7 days" shows 18.5 km for runs of 5, 3.5 and 10 km, ignoring a 20 km run from 10 days ago.
+- `tests/test_database_url.py` checks that the database address Render gives is turned into one that uses psycopg2, the PostgreSQL driver this app installs.
 
 ## Deploy
 
