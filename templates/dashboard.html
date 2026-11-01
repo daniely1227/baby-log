@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · Run Log{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+
+<div class="stats">
+  <div class="stat card">
+    <div class="stat-label">km in the last 7 days</div>
+    <div class="stat-value" id="stat-km-7d">{{ '%g'|format(stats.km_7d) }} km</div>
+  </div>
+  <div class="stat card">
+    <div class="stat-label">Runs in the last 30 days</div>
+    <div class="stat-value" id="stat-runs-30d">{{ stats.runs_30d }}</div>
+  </div>
+  <div class="stat card">
+    <div class="stat-label">Longest run</div>
+    {% if stats.longest %}
+    <div class="stat-value" id="stat-longest">{{ '%.1f'|format(stats.longest.distance_km) }} km</div>
+    <div class="muted small">{{ stats.longest.run_at.strftime('%b %-d') }}</div>
+    {% else %}<div class="stat-value" id="stat-longest">—</div>{% endif %}
+  </div>
+</div>
+
+<section class="card">
+  <h2>km per week, last 8 weeks</h2>
+  <canvas id="weekChart" height="180" aria-label="Bar chart of km per week"></canvas>
+</section>
+
+<p class="muted">Based on {{ stats.total_runs }} run{{ '' if stats.total_runs == 1 else 's' }}. Weeks run Monday to Sunday.</p>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+  new Chart(document.getElementById('weekChart'), {
+    type: 'bar',
+    data: {
+      labels: {{ stats.week_labels|tojson }},
+      datasets: [{ label: 'km', data: {{ stats.week_km|tojson }}, backgroundColor: '#111111', borderRadius: 4 }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, title: { display: true, text: 'km' } }, x: { grid: { display: false } } }
+    }
+  });
+</script>
+{% endblock %}
