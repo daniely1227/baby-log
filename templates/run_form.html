@@ -27,7 +27,8 @@
                value="{{ run.distance_km if run.distance_km is not none else '' }}">
       </label>
       <label>Time (mm:ss or h:mm:ss)
-        <input type="text" name="duration" placeholder="32:15" inputmode="numeric" value="{{ duration }}">
+        <input type="text" name="duration" placeholder="32:15" value="{{ duration }}"
+               autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
       </label>
     </div>
     <label>Effort (optional)
