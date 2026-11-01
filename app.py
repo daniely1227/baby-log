@@ -12,7 +12,7 @@ from flask_login import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from models import Route, Run, User, db
+from models import Route, Run, User, db, format_duration, parse_duration
 
 APP_TZ = ZoneInfo(os.environ.get("APP_TZ", "America/Los_Angeles"))
 
@@ -32,6 +32,31 @@ def get_own_route(route_id):
     if route is None:
         abort(404)
     return route
+
+
+def get_own_run(run_id):
+    """Return a run only if it belongs to the logged-in user, else 404."""
+    run = Run.query.filter_by(id=run_id, user_id=current_user.id).first()
+    if run is None:
+        abort(404)
+    return run
+
+
+def user_routes():
+    return Route.query.filter_by(user_id=current_user.id).order_by(Route.name).all()
+
+
+def fill_run_from_form(run, form):
+    """Copy form values onto a run. Raises ValueError if something can't be read."""
+    run.run_at = datetime.fromisoformat(form.get("run_at", "").strip())
+    run.distance_km = float(form.get("distance_km", "").strip())
+    run.duration_sec = parse_duration(form.get("duration"))
+    route_id = form.get("route_id") or None
+    run.route_id = int(route_id) if route_id else None
+    effort = form.get("effort") or None
+    run.effort = int(effort) if effort else None
+    run.notes = form.get("notes", "").strip() or None
+    return run
 
 
 def database_url():
@@ -148,6 +173,65 @@ def create_app(config=None):
         db.session.commit()
         flash("Route removed. Its runs were kept.")
         return redirect(url_for("routes_page"))
+
+    # ---------- Runs: create / read / update / delete ----------
+
+    @app.route("/runs")
+    @login_required
+    def runs_list():
+        runs = Run.query.filter_by(user_id=current_user.id).order_by(Run.run_at.desc()).all()
+        return render_template("runs_list.html", runs=runs)
+
+    @app.route("/runs/new", methods=["GET", "POST"])
+    @login_required
+    def run_new():
+        run = Run(user_id=current_user.id, run_at=now_local())
+        if request.method == "POST":
+            try:
+                fill_run_from_form(run, request.form)
+            except ValueError:
+                flash("Please check the form.")
+                return render_template("run_form.html", run=run, is_new=True, routes=user_routes(),
+                                       duration=request.form.get("duration", "")), 400
+            db.session.add(run)
+            db.session.commit()
+            flash("Run saved.")
+            return redirect(url_for("run_detail", run_id=run.id))
+        return render_template("run_form.html", run=run, is_new=True, routes=user_routes(), duration="")
+
+    @app.route("/runs/<int:run_id>")
+    @login_required
+    def run_detail(run_id):
+        return render_template("run_detail.html", run=get_own_run(run_id))
+
+    @app.route("/runs/<int:run_id>/edit", methods=["GET", "POST"])
+    @login_required
+    def run_edit(run_id):
+        run = get_own_run(run_id)
+        if request.method == "POST":
+            try:
+                fill_run_from_form(run, request.form)
+            except ValueError:
+                db.session.rollback()
+                flash("Please check the form.")
+                return render_template("run_form.html", run=run, is_new=False, routes=user_routes(),
+                                       duration=request.form.get("duration", "")), 400
+            db.session.commit()
+            flash("Run updated.")
+            return redirect(url_for("run_detail", run_id=run.id))
+        return render_template("run_form.html", run=run, is_new=False, routes=user_routes(),
+                               duration=run.duration_text)
+
+    @app.route("/runs/<int:run_id>/delete", methods=["GET", "POST"])
+    @login_required
+    def run_delete(run_id):
+        run = get_own_run(run_id)
+        if request.method == "POST":
+            db.session.delete(run)
+            db.session.commit()
+            flash("Run deleted.")
+            return redirect(url_for("runs_list"))
+        return render_template("run_delete.html", run=run)
 
     return app
 

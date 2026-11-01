@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Delete run · Run Log{% endblock %}
+{% block content %}
+<section class="card narrow">
+  <h1>Are you sure?</h1>
+  <p>This will permanently delete your <strong>{{ '%.2f'|format(run.distance_km) }} km</strong> run from
+     {{ run.run_at.strftime('%b %-d, %-I:%M %p') }}.</p>
+  <form method="post">
+    <div class="actions">
+      <button class="btn danger" type="submit">Yes, delete it</button>
+      <a class="btn secondary" href="{{ url_for('run_detail', run_id=run.id) }}">No, keep it</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

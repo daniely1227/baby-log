@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Add run' if is_new else 'Edit run' }} · Run Log{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>{{ 'Log a run' if is_new else 'Edit run' }}</h1>
+  <form method="post" novalidate>
+    <label>Date and time
+      <input type="datetime-local" name="run_at" value="{{ run.run_at.strftime('%Y-%m-%dT%H:%M') if run.run_at else '' }}">
+    </label>
+    <label>Route (optional)
+      <select name="route_id" id="route">
+        <option value="">No route</option>
+        {% for r in routes %}
+        <option value="{{ r.id }}" data-km="{{ r.distance_km or '' }}" {% if run.route_id == r.id %}selected{% endif %}>{{ r.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <div class="two">
+      <label>Distance (km)
+        <input type="number" name="distance_km" id="km" step="0.01" min="0" inputmode="decimal"
+               value="{{ run.distance_km if run.distance_km is not none else '' }}">
+      </label>
+      <label>Time (mm:ss or h:mm:ss)
+        <input type="text" name="duration" placeholder="32:15" inputmode="numeric" value="{{ duration }}">
+      </label>
+    </div>
+    <label>Effort (optional)
+      <select name="effort">
+        <option value="">Choose</option>
+        {% for e, label in [(1,'1 · Easy'),(2,'2 · Comfortable'),(3,'3 · Steady'),(4,'4 · Hard'),(5,'5 · All out')] %}
+        <option value="{{ e }}" {% if run.effort == e %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Notes
+      <textarea name="notes" placeholder="Windy, legs felt heavy...">{{ run.notes or '' }}</textarea>
+    </label>
+    <div class="actions">
+      <button class="btn" type="submit">Save</button>
+      <a class="btn secondary" href="{{ url_for('runs_list') if is_new else url_for('run_detail', run_id=run.id) }}">Cancel</a>
+    </div>
+  </form>
+</section>
+<script>
+  // Picking a route fills in its usual distance if the distance box is empty.
+  const route = document.getElementById('route'), km = document.getElementById('km');
+  route.addEventListener('change', () => {
+    const d = route.selectedOptions[0].dataset.km;
+    if (d && !km.value) km.value = d;
+  });
+</script>
+{% endblock %}

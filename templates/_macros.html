@@ -1,0 +1,13 @@
+{% macro run_rows(runs, next_url) %}
+<ul class="log-list">
+  {% for run in runs %}
+  <li class="log-item">
+    <a class="log-row" href="{{ url_for('run_detail', run_id=run.id) }}">
+      <span class="km">{{ '%.1f'|format(run.distance_km) }}<small> km</small></span>
+      <span class="log-main">{{ run.duration_text }}{% if run.route %} <span class="muted">· {{ run.route.name }}</span>{% endif %}{% if run.notes %} <span class="muted">· {{ run.notes|truncate(30) }}</span>{% endif %}</span>
+      <span class="muted log-time">{{ run.run_at.strftime('%a %b %-d') }}</span>
+    </a>
+  </li>
+  {% endfor %}
+</ul>
+{% endmacro %}

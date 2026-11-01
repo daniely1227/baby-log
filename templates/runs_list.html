@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% from "_macros.html" import run_rows with context %}
+{% block title %}Runs · Run Log{% endblock %}
+{% block content %}
+<div class="row-between">
+  <h1>My runs</h1>
+  <a class="btn" href="{{ url_for('run_new') }}">+ Add run</a>
+</div>
+{% if runs %}
+{{ run_rows(runs, request.full_path) }}
+{% else %}
+<div class="card empty">
+  <p>No runs yet.</p>
+  <a class="btn" href="{{ url_for('run_new') }}">Log your first run</a>
+</div>
+{% endif %}
+{% endblock %}

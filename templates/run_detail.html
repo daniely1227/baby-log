@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Run · Run Log{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('runs_list') }}">← All runs</a></p>
+<section class="card">
+  <div class="row-between">
+    <h1>{{ '%.2f'|format(run.distance_km) }} km in {{ run.duration_text }}</h1>
+    {% block star %}{% endblock %}
+  </div>
+  <dl class="details">
+    <dt>When</dt><dd>{{ run.run_at.strftime('%a, %b %-d %Y, %-I:%M %p') }}</dd>
+    <dt>Route</dt><dd>{{ run.route.name if run.route else '—' }}</dd>
+    <dt>Effort</dt><dd>{{ run.effort ~ ' / 5' if run.effort else '—' }}</dd>
+    <dt>Notes</dt><dd>{{ run.notes or '—' }}</dd>
+  </dl>
+  <div class="actions">
+    <a class="btn" href="{{ url_for('run_edit', run_id=run.id) }}">Edit</a>
+    <a class="btn secondary" href="{{ url_for('run_delete', run_id=run.id) }}">Delete</a>
+  </div>
+</section>
+{% endblock %}
