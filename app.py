@@ -365,12 +365,15 @@ def create_app(config=None):
         month = request.args.get("month", "")
         if month:
             try:
-                start = datetime.strptime(month, "%Y-%m")
-            except ValueError:
-                flash("That month doesn't look right, so it was ignored.")
+                # Chrome sends 2026-10 from its month picker. Safari and Firefox on a computer
+                # show a plain text box instead, so also accept 2026/10.
+                start = datetime.strptime(month.replace("/", "-"), "%Y-%m")
+                end = (start + timedelta(days=32)).replace(day=1)
+            except (ValueError, OverflowError):
+                flash("That month doesn't look right, so it was ignored. Use a format like 2026-10.")
                 month = ""
             else:
-                end = (start + timedelta(days=32)).replace(day=1)
+                month = start.strftime("%Y-%m")
                 query = query.filter(Run.run_at >= start, Run.run_at < end)
 
         q = request.args.get("q", "").strip()
