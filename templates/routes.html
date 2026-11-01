@@ -28,7 +28,7 @@
   <h2>Add a route</h2>
   <form method="post" novalidate>
     <label>Name
-      <input type="text" name="name" placeholder="Berkeley Marina loop" value="{{ request.form.name }}">
+      <input type="text" name="name" placeholder="Berkeley Marina loop" value="{{ request.form.name }}" maxlength="120">
     </label>
     <label>Usual distance (km, optional)
       <input type="number" name="distance_km" step="0.1" min="0" inputmode="decimal" value="{{ request.form.distance_km }}">

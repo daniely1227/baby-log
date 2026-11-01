@@ -5,7 +5,7 @@
   <h1>Create an account</h1>
   <form method="post" novalidate>
     <label>Email
-      <input type="email" name="email" value="{{ request.form.email }}" autocomplete="email">
+      <input type="email" name="email" value="{{ request.form.email }}" autocomplete="email" maxlength="255">
     </label>
     <label>Password
       <input type="password" name="password" autocomplete="new-password">
