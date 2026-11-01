@@ -36,9 +36,38 @@ def weekly_km(runs, now, weeks=8):
     return labels, totals
 
 
+def average_pace(runs, now, days=30):
+    """Average pace over the last `days` days: total time / total km (seconds per km)."""
+    since = now - timedelta(days=days)
+    recent = [r for r in runs if since <= r.run_at <= now and r.distance_km]
+    km = sum(r.distance_km for r in recent)
+    if not km:
+        return None
+    return sum(r.duration_sec for r in recent) / km
+
+
+def best_pace_run(runs):
+    """The run with the fastest pace (lowest seconds per km)."""
+    paced = [r for r in runs if r.pace_sec_per_km]
+    return min(paced, key=lambda r: r.pace_sec_per_km, default=None)
+
+
+def pace_trend(runs, last=10):
+    """(labels, minutes per km) for the last `last` runs, oldest first."""
+    recent = sorted((r for r in runs if r.pace_sec_per_km), key=lambda r: r.run_at)[-last:]
+    labels = [r.run_at.strftime("%-m/%-d") for r in recent]
+    minutes = [round(r.pace_sec_per_km / 60, 2) for r in recent]
+    return labels, minutes
+
+
 def dashboard_stats(runs, now):
     labels, totals = weekly_km(runs, now)
+    pace_labels, pace_minutes = pace_trend(runs)
     return {
+        "avg_pace": average_pace(runs, now),
+        "best_pace_run": best_pace_run(runs),
+        "pace_labels": pace_labels,
+        "pace_minutes": pace_minutes,
         "km_7d": km_in_last_days(runs, now, 7),
         "runs_30d": runs_in_last_days(runs, now, 30),
         "longest": longest_run(runs),

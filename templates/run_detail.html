@@ -9,6 +9,7 @@
     {{ star_button(run, request.path) }}
   </div>
   <dl class="details">
+    <dt>Pace</dt><dd><strong>{{ run.pace_text }}</strong></dd>
     <dt>When</dt><dd>{{ run.run_at.strftime('%a, %b %-d %Y, %-I:%M %p') }}</dd>
     <dt>Route</dt><dd>{{ run.route.name if run.route else '—' }}</dd>
     <dt>Effort</dt><dd>{{ run.effort ~ ' / 5' if run.effort else '—' }}</dd>
