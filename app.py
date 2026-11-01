@@ -1,6 +1,7 @@
 import csv
 import io
 import os
+import time
 from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
@@ -12,6 +13,7 @@ from flask_login import (
     login_user,
     logout_user,
 )
+from sqlalchemy.exc import IntegrityError, ProgrammingError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from models import Route, Run, Star, User, db, format_duration, format_pace, parse_duration
@@ -143,10 +145,26 @@ SORT_LABELS = {
 
 def database_url():
     url = os.environ.get("DATABASE_URL", "sqlite:///runlog.db")
-    # Render gives postgres:// but SQLAlchemy wants postgresql://
-    if url.startswith("postgres://"):
-        url = url.replace("postgres://", "postgresql://", 1)
+    # Render gives postgres:// or postgresql:// with no driver name. Name the driver we
+    # install (psycopg2), because newer SQLAlchemy versions look for a different one.
+    for prefix in ("postgres://", "postgresql://"):
+        if url.startswith(prefix):
+            url = "postgresql+psycopg2://" + url[len(prefix):]
     return url
+
+
+def create_tables(tries=3):
+    """Create any missing tables. On a brand-new database two web workers can start at the
+    same moment and both try to create the tables; the slower one gets an error, so it waits
+    a second and checks again (by then the tables exist and nothing is created twice)."""
+    for attempt in range(tries):
+        try:
+            db.create_all()
+            return
+        except (IntegrityError, ProgrammingError):
+            if attempt == tries - 1:
+                raise
+            time.sleep(1)
 
 
 def create_app(config=None):
@@ -168,7 +186,7 @@ def create_app(config=None):
         return db.session.get(User, int(user_id))
 
     with app.app_context():
-        db.create_all()
+        create_tables()
 
     # ---------- Accounts ----------
 
