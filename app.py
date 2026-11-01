@@ -13,6 +13,7 @@ from flask_login import (
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from models import Route, Run, Star, User, db, format_duration, parse_duration
+from stats import dashboard_stats
 
 APP_TZ = ZoneInfo(os.environ.get("APP_TZ", "America/Los_Angeles"))
 
@@ -339,6 +340,14 @@ def create_app(config=None):
             flash("Run deleted.")
             return redirect(url_for("runs_list"))
         return render_template("run_delete.html", run=run)
+
+    # ---------- Dashboard ----------
+
+    @app.route("/dashboard")
+    @login_required
+    def dashboard():
+        runs = Run.query.filter_by(user_id=current_user.id).all()
+        return render_template("dashboard.html", stats=dashboard_stats(runs, now_local()))
 
     # ---------- Stars ----------
 
