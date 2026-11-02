@@ -110,3 +110,23 @@ Clean monochrome, with a white background, black text, gray borders, one black a
 - **Least sure I can build.** The weekly streak, because "weeks in a row" depends on where a week starts and on weeks with no runs, which is easy to get off by one. I'll define weeks as Monday to Sunday.
 - **First to cut if I run out of time.** CSV export, because I don't need it week to week.
 - **Hosting risk.** Render's free database expires after a limited time, which is fine through the Nov 4 demo but would need an upgrade for long-term use.
+
+## Plan vs. Reality
+
+| Planned feature | Shipped / Changed / Cut | Status | Learning | What changed and why |
+|---|---|---|---|---|
+| 1. Sign up and login | Changed | Done | Inputs that look fine in testing can still break the real database | Added an email format check and a length limit after a 262-character email crashed sign up on PostgreSQL (#34) |
+| 2. Data model and routes | Changed | Done | The plan didn't say what happens to runs when a route is removed | Removing a route keeps its runs and just unlinks them, and route names are capped at 120 characters (#6, #34) |
+| 3. Create / read / update / delete runs | Shipped | Done | A separate "Are you sure?" page is clearer on a phone than a pop-up | Built as planned (#8) |
+| 4. Validation | Changed | Done | The list of things to validate kept growing after real testing | Also refuses another user's route, future dates, "nan" or "inf" distances and times over 100 hours (#10, #34, #44) |
+| 5. Stars | Shipped | Done | One junction table with a unique pair was enough | Built as planned (#12) |
+| 6. Find things | Changed | Done | Browsers don't all have the same date pickers | Safari and Firefox show a plain text box for the month, so it now shows an example and accepts 2026/10 too (#14, #42) |
+| 7. Dashboard | Shipped | Done | Keeping the math in stats.py made it testable | Built as planned (#16) |
+| 8. Pace | Changed | Done | Small rounding slips show up in charts | Pace chart labels could read 5:60, fixed to round to whole seconds (#18, #36) |
+| 9. One-tap repeat run | Shipped | Done | Copying the last run on the route is enough for a usual loop | Built as planned (#20) |
+| 10. Last run and streak | Changed | Done | The streak, my riskiest feature, worked first time; the bug was somewhere I didn't expect | A run dated in the future made the home page say "-3 days ago", so future dates are now refused (#22, #34) |
+| 11. CSV export | Shipped | Done | It was my first cut but turned out small | Built as planned (#24) |
+| Section 5, "the same code runs on SQLite and PostgreSQL" | Changed | Done | Testing only on SQLite hid real problems | The app crashed on start on Render's PostgreSQL because of a database driver change and later errored after a database restart. Fixed before the first deploy (#32, #44) |
+| Time entry as mm:ss | Changed | Done | Typing a colon on a phone is a real obstacle | After the stranger test, the time box fills in the colon itself, so 3215 becomes 32:15 (#48) |
+| Distance in km | Changed | Done | How a number is shown changes how people think they must type it | The stranger thought two decimals were required because pages showed 5.20 km, so distances now show as typed (#50) |
+| Section 6, clean monochrome design | Shipped as planned, kept | Backlogged | A tester found it too plain | Left as is for now, because redoing the look two days before the deadline risked breaking working pages |
