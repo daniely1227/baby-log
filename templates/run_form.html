@@ -26,9 +26,9 @@
         <input type="number" name="distance_km" id="km" step="0.01" min="0" inputmode="decimal"
                value="{{ run.distance_km if run.distance_km is not none else '' }}">
       </label>
-      <label>Time (mm:ss or h:mm:ss)
-        <input type="text" name="duration" placeholder="32:15" value="{{ duration }}"
-               autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+      <label>Time (just type the numbers, 3215 becomes 32:15)
+        <input type="text" name="duration" id="duration" placeholder="32:15" value="{{ duration }}"
+               inputmode="numeric" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
       </label>
     </div>
     <label>Effort (optional)
@@ -54,6 +54,17 @@
   route.addEventListener('change', () => {
     const d = route.selectedOptions[0].dataset.km;
     if (d && !km.value) km.value = d;
+  });
+
+  // Type only digits and the colons fill themselves in from the right:
+  // 3215 shows 32:15, 10530 shows 1:05:30. Seconds are always the last two digits.
+  const dur = document.getElementById('duration');
+  dur.addEventListener('input', () => {
+    const digits = dur.value.replace(/\D/g, '').replace(/^0+(?=\d{3})/, '').slice(0, 6);
+    let text = digits;
+    if (digits.length > 4) text = digits.slice(0, -4) + ':' + digits.slice(-4, -2) + ':' + digits.slice(-2);
+    else if (digits.length > 2) text = digits.slice(0, -2) + ':' + digits.slice(-2);
+    dur.value = text;
   });
 </script>
 {% endblock %}
