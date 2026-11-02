@@ -88,8 +88,13 @@ def format_duration(seconds):
 
 
 def parse_duration(text):
-    """'32:15' or '1:02:05' -> seconds. Raises ValueError if the format is wrong."""
-    parts = (text or "").strip().split(":")
+    """'32:15' or '1:02:05' -> seconds. Digits without colons work too, read from the right
+    the same way the form fills them in ('3215' -> 32:15, '10530' -> 1:05:30), in case the
+    page's script didn't run. Raises ValueError if the format is wrong."""
+    text = (text or "").strip()
+    if text.isdecimal() and 3 <= len(text) <= 6:
+        text = f"{text[:-4]}:{text[-4:-2]}:{text[-2:]}" if len(text) > 4 else f"{text[:-2]}:{text[-2:]}"
+    parts = text.split(":")
     if len(parts) not in (2, 3) or not all(p.isdecimal() for p in parts):
         raise ValueError("bad duration")
     nums = [int(p) for p in parts]
