@@ -6,7 +6,7 @@
 <div class="stats">
   <div class="stat card">
     <div class="stat-label">km in the last 7 days</div>
-    <div class="stat-value" id="stat-km-7d">{{ '%g'|format(stats.km_7d) }} km</div>
+    <div class="stat-value" id="stat-km-7d">{{ stats.km_7d|km }} km</div>
   </div>
   <div class="stat card">
     <div class="stat-label">Runs in the last 30 days</div>
@@ -15,7 +15,7 @@
   <div class="stat card">
     <div class="stat-label">Longest run</div>
     {% if stats.longest %}
-    <div class="stat-value" id="stat-longest">{{ '%.1f'|format(stats.longest.distance_km) }} km</div>
+    <div class="stat-value" id="stat-longest">{{ stats.longest.distance_km|km }} km</div>
     <div class="muted small">{{ stats.longest.run_at|date('%b %-d') }}</div>
     {% else %}<div class="stat-value" id="stat-longest">—</div>{% endif %}
   </div>
@@ -30,7 +30,7 @@
     <div class="stat-label">Best pace</div>
     {% if stats.best_pace_run %}
     <div class="stat-value" id="stat-best-pace">{{ stats.best_pace_run.pace_text }}</div>
-    <div class="muted small">{{ '%.1f'|format(stats.best_pace_run.distance_km) }} km on {{ stats.best_pace_run.run_at|date('%b %-d') }}</div>
+    <div class="muted small">{{ stats.best_pace_run.distance_km|km }} km on {{ stats.best_pace_run.run_at|date('%b %-d') }}</div>
     {% else %}<div class="stat-value" id="stat-best-pace">—</div>{% endif %}
   </div>
 </div>

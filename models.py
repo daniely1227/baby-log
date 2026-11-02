@@ -118,6 +118,13 @@ def format_date(value, pattern):
     return value.strftime(pattern)
 
 
+def format_km(km):
+    """5.0 -> '5', 5.2 -> '5.2', 3.333 -> '3.33'. Only shows the decimals that were typed."""
+    if km is None:
+        return ""
+    return f"{round(km, 2):g}"
+
+
 def format_pace(sec_per_km):
     """361.5 -> '6:02 /km'."""
     if sec_per_km is None:

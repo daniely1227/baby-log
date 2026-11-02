@@ -5,7 +5,7 @@
 <p><a href="{{ url_for('runs_list') }}">← All runs</a></p>
 <section class="card">
   <div class="row-between">
-    <h1>{{ '%.2f'|format(run.distance_km) }} km in {{ run.duration_text }}</h1>
+    <h1>{{ run.distance_km|km }} km in {{ run.duration_text }}</h1>
     {{ star_button(run, request.path) }}
   </div>
   <dl class="details">

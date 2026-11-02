@@ -37,7 +37,7 @@
 </form>
 
 {% if runs %}
-<p class="muted">{{ runs|length }} run{{ '' if runs|length == 1 else 's' }} · {{ '%.1f'|format(runs|sum(attribute='distance_km')) }} km</p>
+<p class="muted">{{ runs|length }} run{{ '' if runs|length == 1 else 's' }} · {{ (runs|sum(attribute='distance_km'))|km }} km</p>
 {{ run_rows(runs, request.full_path) }}
 {% elif filtering %}
 <div class="card empty">

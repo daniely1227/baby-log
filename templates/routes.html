@@ -10,7 +10,7 @@
   <li class="log-item">
     <div class="log-row">
       <span class="log-main"><strong>{{ r.name }}</strong>
-        <span class="muted">{% if r.distance_km %} · {{ '%.1f'|format(r.distance_km) }} km{% endif %}{% if r.surface %} · {{ r.surface }}{% endif %}</span>
+        <span class="muted">{% if r.distance_km %} · {{ r.distance_km|km }} km{% endif %}{% if r.surface %} · {{ r.surface }}{% endif %}</span>
       </span>
       <span class="muted log-time">{{ r.runs|length }} run{{ '' if r.runs|length == 1 else 's' }}</span>
     </div>
