@@ -2,7 +2,7 @@
 
 A small web app for logging my jogging runs in km. Each run has a date, distance, time, optional route, effort and notes. The app works out the pace, shows weekly totals and a pace trend, and keeps my habit going with a weekly streak.
 
-Try the live app at LIVE_URL_PLACEHOLDER
+Try the live app at https://run-log-pgqx.onrender.com (the free server sleeps after 15 minutes without visitors, so the first page can take about a minute to load).
 
 Built for the Intro to Code solo app assignment (Haas, Fall 2026). See [PLAN.md](PLAN.md) for the plan and [schema.md](schema.md) for the database.
 
