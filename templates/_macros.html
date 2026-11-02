@@ -14,7 +14,7 @@
   {% for run in runs %}
   <li class="log-item">
     <a class="log-row" href="{{ url_for('run_detail', run_id=run.id) }}">
-      <span class="km">{{ '%.1f'|format(run.distance_km) }}<small> km</small></span>
+      <span class="km">{{ run.distance_km|km }}<small> km</small></span>
       <span class="log-main"><strong>{{ run.pace_text }}</strong> <span class="muted">· {{ run.duration_text }}</span>{% if run.route %} <span class="muted">· {{ run.route.name }}</span>{% endif %}{% if run.notes %} <span class="muted">· {{ run.notes|truncate(30) }}</span>{% endif %}</span>
       <span class="muted log-time">{{ run.run_at|date('%a %b %-d') }}</span>
     </a>

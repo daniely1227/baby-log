@@ -31,7 +31,7 @@
     {% for q in quick %}
       {% if q.last %}
       <form method="post" action="{{ url_for('route_repeat', route_id=q.route.id) }}">
-        <button class="quick"><span>{{ q.route.name }}<br><small>{{ '%g'|format(q.last.distance_km) }} km · {{ q.last.duration_text }}</small></span></button>
+        <button class="quick"><span>{{ q.route.name }}<br><small>{{ q.last.distance_km|km }} km · {{ q.last.duration_text }}</small></span></button>
       </form>
       {% else %}
       <a class="quick" href="{{ url_for('run_new', route=q.route.id) }}"><span>{{ q.route.name }}<br><small>first run, open form</small></span></a>

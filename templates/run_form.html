@@ -17,14 +17,14 @@
       <select name="route_id" id="route">
         <option value="">No route</option>
         {% for r in routes %}
-        <option value="{{ r.id }}" data-km="{{ r.distance_km or '' }}" {% if run.route_id == r.id %}selected{% endif %}>{{ r.name }}</option>
+        <option value="{{ r.id }}" data-km="{{ r.distance_km|km if r.distance_km else '' }}" {% if run.route_id == r.id %}selected{% endif %}>{{ r.name }}</option>
         {% endfor %}
       </select>
     </label>
     <div class="two">
       <label>Distance (km)
-        <input type="number" name="distance_km" id="km" step="0.01" min="0" inputmode="decimal"
-               value="{{ run.distance_km if run.distance_km is not none else '' }}">
+        <input type="number" name="distance_km" id="km" step="0.1" min="0" inputmode="decimal"
+               value="{{ run.distance_km|km if run.distance_km is not none else '' }}">
       </label>
       <label>Time (just type the numbers, 3215 becomes 32:15)
         <input type="text" name="duration" id="duration" placeholder="32:15" value="{{ duration }}"
